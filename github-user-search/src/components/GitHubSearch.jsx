@@ -15,6 +15,45 @@ const githubApi = axios.create({
  * @param {string} username - GitHub username to search for
  * @returns {Promise<{data: object|null, error: string|null}>}
  */
+
+export const advancedSearchUsers = async (params) => {
+  try {
+    const queryParts = [];
+    
+    if (params.username) queryParts.push(`${params.username} in:login`);
+    if (params.location) queryParts.push(`location:${params.location}`);
+    if (params.minRepos) queryParts.push(`repos:>${params.minRepos}`);
+    if (params.language) queryParts.push(`language:${params.language}`);
+    
+    const query = queryParts.join(' ');
+    const response = await githubApi.get('/search/users', {
+      params: {
+        q: query,
+        page: params.page || 1,
+        per_page: 30
+      }
+    });
+
+    // Get detailed info for each user
+    const usersWithDetails = await Promise.all(
+      response.data.items.map(async user => {
+        const userDetails = await githubApi.get(`/users/${user.login}`);
+        return {
+          ...user,
+          ...userDetails.data
+        };
+      })
+    );
+
+    return {
+      ...response.data,
+      items: usersWithDetails
+    };
+  } catch (error) {
+    console.error('GitHub API Error:', error);
+    throw error;
+  }
+};
 export const fetchUserData = async (username) => {
   try {
     // Make GET request to GitHub API

@@ -13,12 +13,22 @@ export default function Search() {
 
     setLoading(true);
     setError(null);
+    setUserData(null); // Clear previous data before new search
     
-    const { data, error } = await fetchUserData(username);
-    
-    setUserData(data);
-    setError(error);
-    setLoading(false);
+    try {
+      const { data, error: apiError } = await fetchUserData(username);
+      
+      if (apiError) {
+        setError("Looks like we can't find the user");
+      } else {
+        setUserData(data);
+      }
+    } catch (err) {
+      setError('An error occurred while searching');
+      console.error('Search error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -30,6 +40,7 @@ export default function Search() {
           onChange={(e) => setUsername(e.target.value)}
           placeholder="Enter GitHub username"
           disabled={loading}
+          onKeyDown={(e) => e.key === 'Enter' && handleSubmit(e)}
         />
         <button type="submit" disabled={loading}>
           {loading ? 'Searching...' : 'Search'}
@@ -37,7 +48,7 @@ export default function Search() {
       </form>
 
       {loading && <p className="loading">Loading...</p>}
-      {error && <p className="error">Looks like we can't find the user</p>}
+      {error && <p className="error">{error}</p>}
 
       {userData && !error && (
         <div className="user-card">
@@ -45,16 +56,25 @@ export default function Search() {
             src={userData.avatar_url} 
             alt={userData.login} 
             width="100"
+            className="user-avatar"
           />
-          <h2>{userData.name || userData.login}</h2>
-          <p>{userData.bio || 'No bio available'}</p>
-          <a 
-            href={userData.html_url} 
-            target="_blank" 
-            rel="noopener noreferrer"
-          >
-            View Profile
-          </a>
+          <div className="user-info">
+            <h2>{userData.name || userData.login}</h2>
+            {userData.bio && <p className="user-bio">{userData.bio}</p>}
+            <div className="user-stats">
+              <span>Followers: {userData.followers}</span>
+              <span>Following: {userData.following}</span>
+              <span>Repos: {userData.public_repos}</span>
+            </div>
+            <a 
+              href={userData.html_url} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="profile-link"
+            >
+              View Profile on GitHub
+            </a>
+          </div>
         </div>
       )}
     </div>

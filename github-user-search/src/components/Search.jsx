@@ -19,12 +19,12 @@ export default function Search() {
       const response = await fetchUserData(username);
       
       if (response.error) {
-        setError("Looks like we can't find the user");
+        setError("Looks like we cant find the user");
       } else {
         setUserData(response.data);
       }
     } catch (err) {
-      setError("Looks like we can't find the user");
+      setError("Looks like we cant find the user");
     } finally {
       setLoading(false);
     }
@@ -47,7 +47,7 @@ export default function Search() {
 
       {loading && <p>Loading...</p>}
       
-      {error && <p>Looks like we can't find the user</p>}
+      {error && <p>Looks like we cant find the user</p>}
 
       {userData && !error && (
         <div className="user-info">

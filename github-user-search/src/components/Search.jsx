@@ -6,6 +6,7 @@ export default function Search() {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [location, setLocation] = useState(''); // Added location state
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,14 +39,25 @@ export default function Search() {
     <div className="search-container">
       <h1>GitHub User Search</h1>
       <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="Enter GitHub username"
-          disabled={loading}
-          onKeyDown={(e) => e.key === 'Enter' && handleSubmit(e)}
-        />
+        <div className="input-group"> {/* Added wrapper div */}
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Enter GitHub username"
+            disabled={loading}
+            onKeyDown={(e) => e.key === 'Enter' && handleSubmit(e)}
+          />
+          {/* Added location input field */}
+          <input
+            type="text"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            placeholder="Filter by location (optional)"
+            disabled={loading}
+            className="location-input"
+          />
+        </div>
         <button type="submit" disabled={loading}>
           {loading ? 'Searching...' : 'Search'}
         </button>
@@ -68,6 +80,7 @@ export default function Search() {
               />
               <div className="user-details">
                 <h2>{user.name || user.login}</h2>
+                {user.location && <p className="location">📍 {user.location}</p>} {/* Added location display */}
                 {user.bio && <p className="bio">{user.bio}</p>}
                 <div className="user-stats">
                   <span>Repos: {user.public_repos}</span>

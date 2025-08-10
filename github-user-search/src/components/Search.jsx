@@ -16,16 +16,15 @@ export default function Search() {
     setUserData(null);
     
     try {
-      const { data, error: apiError } = await fetchUserData(username);
+      const response = await fetchUserData(username);
       
-      if (apiError) {
-        setError("Looks like we can't find the user"); // Exact error message here
+      if (response.error) {
+        setError("Looks like we can't find the user");
       } else {
-        setUserData(data);
+        setUserData(response.data);
       }
     } catch (err) {
-      setError("Looks like we can't find the user"); // Consistent error message
-      console.error('Search error:', err);
+      setError("Looks like we can't find the user");
     } finally {
       setLoading(false);
     }
@@ -46,27 +45,16 @@ export default function Search() {
         </button>
       </form>
 
-      {loading && <p className="loading">Loading...</p>}
+      {loading && <p>Loading...</p>}
       
-      {/* Exact error message display */}
-      {error === "Looks like we can't find the user" && (
-        <p className="error">Looks like we can't find the user</p>
-      )}
+      {error && <p>Looks like we can't find the user</p>}
 
       {userData && !error && (
-        <div className="user-card">
-          <img 
-            src={userData.avatar_url} 
-            alt={userData.login} 
-            width="100"
-          />
+        <div className="user-info">
+          <img src={userData.avatar_url} alt={userData.login} width="100" />
           <h2>{userData.name || userData.login}</h2>
           <p>{userData.bio || 'No bio available'}</p>
-          <a 
-            href={userData.html_url} 
-            target="_blank" 
-            rel="noopener noreferrer"
-          >
+          <a href={userData.html_url} target="_blank" rel="noopener noreferrer">
             View Profile
           </a>
         </div>

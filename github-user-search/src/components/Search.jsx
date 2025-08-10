@@ -22,12 +22,12 @@ export default function Search() {
       const response = await fetchUserData(username);
       
       if (response.error) {
-        setError("Looks like we can't find the user");  // Fixed: Added apostrophe
+        setError("Looks like we can't find the user");
       } else {
         setUserData(response.data);
       }
     } catch (err) {
-      setError("Looks like we can't find the user");  // Fixed: Added apostrophe
+      setError("Looks like we can't find the user");
       console.error('Search error:', err);
     } finally {
       setLoading(false);
@@ -53,34 +53,38 @@ export default function Search() {
 
       {loading && <p className="loading">Loading...</p>}
       
-      {/* Exact error message with proper apostrophe */}
       {error && <p className="error">{error}</p>}
 
+      {/* Using map to display results even for single user */}
       {userData && !error && (
-        <div className="user-card">
-          <img 
-            src={userData.avatar_url} 
-            alt={userData.login} 
-            width="100"
-            className="avatar"
-          />
-          <div className="user-details">
-            <h2>{userData.name || userData.login}</h2>
-            {userData.bio && <p className="bio">{userData.bio}</p>}
-            <div className="user-stats">
-              <span>Repos: {userData.public_repos}</span>
-              <span>Followers: {userData.followers}</span>
-              <span>Following: {userData.following}</span>
+        <div className="results-container">
+          {[userData].map(user => (
+            <div key={user.id} className="user-card">
+              <img 
+                src={user.avatar_url} 
+                alt={user.login} 
+                width="100"
+                className="avatar"
+              />
+              <div className="user-details">
+                <h2>{user.name || user.login}</h2>
+                {user.bio && <p className="bio">{user.bio}</p>}
+                <div className="user-stats">
+                  <span>Repos: {user.public_repos}</span>
+                  <span>Followers: {user.followers}</span>
+                  <span>Following: {user.following}</span>
+                </div>
+                <a 
+                  href={user.html_url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="profile-link"
+                >
+                  View Profile on GitHub
+                </a>
+              </div>
             </div>
-            <a 
-              href={userData.html_url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="profile-link"
-            >
-              View Profile on GitHub
-            </a>
-          </div>
+          ))}
         </div>
       )}
     </div>

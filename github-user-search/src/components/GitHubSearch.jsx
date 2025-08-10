@@ -1,6 +1,57 @@
 import { useState } from 'react';
 import { searchUsers } from '../services/githubService';
+import axios from 'axios';
 
+// Create configured axios instance
+const githubApi = axios.create({
+  baseURL: 'https://api.github.com',
+  headers: {
+    'Accept': 'application/vnd.github.v3+json'
+  }
+});
+
+/**
+ * Fetches GitHub user data
+ * @param {string} username - GitHub username to search for
+ * @returns {Promise<{data: object|null, error: string|null}>}
+ */
+export const fetchUserData = async (username) => {
+  try {
+    // Make GET request to GitHub API
+    const response = await githubApi.get(`/users/${username}`);
+    
+    // Return successful response data
+    return {
+      data: {
+        login: response.data.login,
+        name: response.data.name,
+        avatar_url: response.data.avatar_url,
+        html_url: response.data.html_url,
+        bio: response.data.bio,
+        public_repos: response.data.public_repos,
+        followers: response.data.followers,
+        following: response.data.following
+      },
+      error: null
+    };
+    
+  } catch (error) {
+    // Handle different error cases
+    if (error.response) {
+      // GitHub API returned an error response
+      if (error.response.status === 404) {
+        return { data: null, error: "Looks like we can't find the user" };
+      }
+      return { data: null, error: "GitHub API error occurred" };
+    } else if (error.request) {
+      // Request was made but no response received
+      return { data: null, error: "Network error - no response from server" };
+    } else {
+      // Other errors
+      return { data: null, error: "An unexpected error occurred" };
+    }
+  }
+};
 export default function GitHubSearch() {
   const [searchTerm, setSearchTerm] = useState('');
   const [users, setUsers] = useState([]);

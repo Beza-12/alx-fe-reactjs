@@ -2,10 +2,38 @@ import axios from 'axios';
 
 const GITHUB_API_URL = 'https://api.github.com';
 
-/**
- * Fetches a single user's data
- * @param {string} username - GitHub username to search for
- */
+export const advancedSearchUsers = async (params) => {
+  try {
+    const queryParts = [];
+    
+    if (params.username) queryParts.push(`${params.username} in:login`);
+    if (params.location) queryParts.push(`location:${params.location}`);
+    if (params.minRepos) queryParts.push(`repos:>${params.minRepos}`);
+    
+    const response = await axios.get(
+      `https://api.github.com/search/users?q=${queryParts.join('+')}`,
+      {
+        params: {
+          page: params.page || 1,
+          per_page: 30
+        }
+      }
+    );
+
+    return {
+      items: response.data.items,
+      total_count: response.data.total_count,
+      error: null
+    };
+  } catch (error) {
+    return {
+      items: [],
+      total_count: 0,
+      error: 'Search failed'
+    };
+  }
+};
+
 export const fetchUserData = async (username) => {
   try {
     const response = await axios.get(`${GITHUB_API_URL}/users/${username}`);
@@ -16,56 +44,29 @@ export const fetchUserData = async (username) => {
   } catch (error) {
     return {
       data: null,
-      error: "Looks like we can't find the user"
+      error: error.response?.status === 404 
+        ? 'User not found' 
+        : 'An error occurred'
     };
   }
 };
 
-/**
- * Advanced search for GitHub users with multiple parameters
- * @param {Object} params - Search parameters
- * @param {string} params.username - Username to search for
- * @param {string} params.location - Location filter
- * @param {number} params.minRepos - Minimum repositories filter
- * @param {number} params.page - Pagination page number
- */
-export const advancedSearchUsers = async ({ username, location, minRepos, page = 1 }) => {
+export const searchUsers = async (username) => {
   try {
-    // Build query string
-    let queryParts = [];
-    if (username) queryParts.push(`${username} in:login`);
-    if (location) queryParts.push(`location:${location}`);
-    if (minRepos) queryParts.push(`repos:>${minRepos}`);
-
-    const query = queryParts.join(' ');
-    
-    const response = await axios.get(`${GITHUB_API_URL}/search/users`, {
-      params: {
-        q: query,
-        page,
-        per_page: 10
-      }
-    });
-
-    // Get detailed info for each user
-    const usersWithDetails = await Promise.all(
-      response.data.items.map(async (user) => {
-        const userDetails = await axios.get(`${GITHUB_API_URL}/users/${user.login}`);
-        return userDetails.data;
-      })
-    );
-
-    return {
-      items: usersWithDetails,
-      total_count: response.data.total_count,
-      error: null
-    };
+    const response = await axios.get(`${GITHUB_API_URL}/search/users?q=${username}`);
+    return response.data.items;
   } catch (error) {
-    console.error('Advanced search error:', error);
-    return {
-      items: [],
-      total_count: 0,
-      error: "An error occurred during search"
-    };
+    console.error('Error searching users:', error);
+    return [];
+  }
+};
+
+export const getUserDetails = async (username) => {
+  try {
+    const response = await axios.get(`${GITHUB_API_URL}/users/${username}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching user details:', error);
+    return null;
   }
 };

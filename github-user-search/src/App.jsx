@@ -3,7 +3,7 @@ import reactLogo from './assets/react.svg';
 import viteLogo from '/vite.svg';
 import './App.css';
 import { searchUsers } from './services/githubService';
-
+import Search from './components/Search';
 function App() {
   const [count, setCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
@@ -35,6 +35,10 @@ function App() {
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
       </div>
+      <div className="App">
+      <h1>GitHub User Search</h1>
+      <Search />
+    </div>
       <h1>Vite + React + GitHub Search</h1> {/* Updated title */}
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>

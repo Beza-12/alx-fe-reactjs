@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { searchUsers } from '../services/githubService';
 import axios from 'axios';
 
 // Create configured axios instance
@@ -11,11 +10,21 @@ const githubApi = axios.create({
 });
 
 /**
- * Fetches GitHub user data
- * @param {string} username - GitHub username to search for
- * @returns {Promise<{data: object|null, error: string|null}>}
+ * Basic user search
  */
+export const searchUsers = async (username) => {
+  try {
+    const response = await githubApi.get(`/search/users?q=${username}`);
+    return response.data.items;
+  } catch (error) {
+    console.error('Search error:', error);
+    return [];
+  }
+};
 
+/**
+ * Advanced user search with multiple parameters
+ */
 export const advancedSearchUsers = async (params) => {
   try {
     const queryParts = [];
@@ -54,12 +63,13 @@ export const advancedSearchUsers = async (params) => {
     throw error;
   }
 };
+
+/**
+ * Single user fetch
+ */
 export const fetchUserData = async (username) => {
   try {
-    // Make GET request to GitHub API
     const response = await githubApi.get(`/users/${username}`);
-    
-    // Return successful response data
     return {
       data: {
         login: response.data.login,
@@ -73,36 +83,50 @@ export const fetchUserData = async (username) => {
       },
       error: null
     };
-    
   } catch (error) {
-    // Handle different error cases
     if (error.response) {
-      // GitHub API returned an error response
-      if (error.response.status === 404) {
-        return { data: null, error: "Looks like we can't find the user" };
-      }
-      return { data: null, error: "GitHub API error occurred" };
-    } else if (error.request) {
-      // Request was made but no response received
-      return { data: null, error: "Network error - no response from server" };
-    } else {
-      // Other errors
-      return { data: null, error: "An unexpected error occurred" };
+      return { 
+        data: null, 
+        error: error.response.status === 404 
+          ? "Looks like we can't find the user" 
+          : "GitHub API error occurred" 
+      };
     }
+    return { 
+      data: null, 
+      error: error.request 
+        ? "Network error - no response from server" 
+        : "An unexpected error occurred" 
+    };
   }
 };
+
 export default function GitHubSearch() {
   const [searchTerm, setSearchTerm] = useState('');
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [searchParams, setSearchParams] = useState({
+    location: '',
+    minRepos: '',
+    language: ''
+  });
 
   const handleSearch = async () => {
     if (!searchTerm.trim()) return;
     
     setLoading(true);
     try {
-      const results = await searchUsers(searchTerm);
-      setUsers(results);
+      // Use advanced search if any additional parameters are provided
+      if (searchParams.location || searchParams.minRepos || searchParams.language) {
+        const results = await advancedSearchUsers({
+          username: searchTerm,
+          ...searchParams
+        });
+        setUsers(results.items);
+      } else {
+        const results = await searchUsers(searchTerm);
+        setUsers(results);
+      }
     } catch (err) {
       console.error('Search error:', err);
     } finally {
@@ -110,18 +134,50 @@ export default function GitHubSearch() {
     }
   };
 
+  const handleParamChange = (e) => {
+    const { name, value } = e.target;
+    setSearchParams(prev => ({ ...prev, [name]: value }));
+  };
+
   return (
     <div className="github-search">
-      <input
-        type="text"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder="Search GitHub users"
-        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-      />
-      <button onClick={handleSearch} disabled={loading}>
-        {loading ? 'Searching...' : 'Search'}
-      </button>
+      <div className="search-inputs">
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search GitHub users"
+          onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+        />
+        <button onClick={handleSearch} disabled={loading}>
+          {loading ? 'Searching...' : 'Search'}
+        </button>
+      </div>
+
+      <div className="advanced-params">
+        <input
+          type="text"
+          name="location"
+          value={searchParams.location}
+          onChange={handleParamChange}
+          placeholder="Location"
+        />
+        <input
+          type="number"
+          name="minRepos"
+          value={searchParams.minRepos}
+          onChange={handleParamChange}
+          placeholder="Min repos"
+          min="0"
+        />
+        <input
+          type="text"
+          name="language"
+          value={searchParams.language}
+          onChange={handleParamChange}
+          placeholder="Language"
+        />
+      </div>
       
       {users.length > 0 && (
         <div className="results">
@@ -131,7 +187,9 @@ export default function GitHubSearch() {
               <li key={user.id}>
                 <a href={user.html_url} target="_blank" rel="noopener noreferrer">
                   <img src={user.avatar_url} alt={user.login} width="30" />
-                  {user.login}
+                  <span>{user.login}</span>
+                  {user.location && <span> | {user.location}</span>}
+                  {user.public_repos && <span> | Repos: {user.public_repos}</span>}
                 </a>
               </li>
             ))}

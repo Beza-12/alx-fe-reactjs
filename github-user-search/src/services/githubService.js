@@ -2,22 +2,13 @@ import axios from 'axios';
 
 const GITHUB_API_URL = 'https://api.github.com';
 
-// Create a configured axios instance
-const githubApi = axios.create({
-  baseURL: GITHUB_API_URL,
-  headers: {
-    'Accept': 'application/vnd.github.v3+json'
-  }
-});
-
 /**
  * Fetches a single user's data
- * @param {string} username - GitHub username
- * @returns {Promise<{data: object|null, error: string|null}>}
+ * @param {string} username - GitHub username to search for
  */
 export const fetchUserData = async (username) => {
   try {
-    const response = await githubApi.get(`/users/${username}`);
+    const response = await axios.get(`${GITHUB_API_URL}/users/${username}`);
     return {
       data: response.data,
       error: null
@@ -25,56 +16,47 @@ export const fetchUserData = async (username) => {
   } catch (error) {
     return {
       data: null,
-      error: error.response?.status === 404 
-        ? 'User not found' 
-        : 'An error occurred'
+      error: "Looks like we can't find the user"
     };
   }
 };
 
 /**
- * Basic user search
- * @param {string} username - Search query
- * @returns {Promise<array>} - Array of user objects
- */
-export const searchUsers = async (username) => {
-  try {
-    const response = await githubApi.get(`/search/users?q=${username}`);
-    return response.data.items;
-  } catch (error) {
-    console.error('Error searching users:', error);
-    return [];
-  }
-};
-
-/**
- * Advanced user search with multiple parameters
+ * Advanced search for GitHub users with multiple parameters
  * @param {Object} params - Search parameters
- * @param {string} params.username - Username to search
+ * @param {string} params.username - Username to search for
  * @param {string} params.location - Location filter
- * @param {number} params.minRepos - Minimum repositories
- * @param {string} params.language - Programming language
- * @param {number} params.page - Pagination page
- * @returns {Promise<{items: array, total_count: number, error: string|null}>}
+ * @param {number} params.minRepos - Minimum repositories filter
+ * @param {number} params.page - Pagination page number
  */
-export const advancedSearchUsers = async ({ username, location, minRepos, language, page = 1 }) => {
+export const advancedSearchUsers = async ({ username, location, minRepos, page = 1 }) => {
   try {
-    const queryParts = [];
+    // Build query string
+    let queryParts = [];
     if (username) queryParts.push(`${username} in:login`);
     if (location) queryParts.push(`location:${location}`);
     if (minRepos) queryParts.push(`repos:>${minRepos}`);
-    if (language) queryParts.push(`language:${language}`);
 
-    const response = await githubApi.get('/search/users', {
+    const query = queryParts.join(' ');
+    
+    const response = await axios.get(`${GITHUB_API_URL}/search/users`, {
       params: {
-        q: queryParts.join(' '),
+        q: query,
         page,
-        per_page: 30
+        per_page: 10
       }
     });
 
+    // Get detailed info for each user
+    const usersWithDetails = await Promise.all(
+      response.data.items.map(async (user) => {
+        const userDetails = await axios.get(`${GITHUB_API_URL}/users/${user.login}`);
+        return userDetails.data;
+      })
+    );
+
     return {
-      items: response.data.items,
+      items: usersWithDetails,
       total_count: response.data.total_count,
       error: null
     };
@@ -83,22 +65,7 @@ export const advancedSearchUsers = async ({ username, location, minRepos, langua
     return {
       items: [],
       total_count: 0,
-      error: 'An error occurred during search'
+      error: "An error occurred during search"
     };
-  }
-};
-
-/**
- * Gets detailed user information
- * @param {string} username - GitHub username
- * @returns {Promise<object|null>} - User details
- */
-export const getUserDetails = async (username) => {
-  try {
-    const response = await githubApi.get(`/users/${username}`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching user details:', error);
-    return null;
   }
 };

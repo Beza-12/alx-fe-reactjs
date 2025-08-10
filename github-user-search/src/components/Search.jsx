@@ -13,18 +13,18 @@ export default function Search() {
 
     setLoading(true);
     setError(null);
-    setUserData(null); // Clear previous data before new search
+    setUserData(null);
     
     try {
       const { data, error: apiError } = await fetchUserData(username);
       
       if (apiError) {
-        setError("Looks like we can't find the user");
+        setError("Looks like we can't find the user"); // Exact error message here
       } else {
         setUserData(data);
       }
     } catch (err) {
-      setError('An error occurred while searching');
+      setError("Looks like we can't find the user"); // Consistent error message
       console.error('Search error:', err);
     } finally {
       setLoading(false);
@@ -40,7 +40,6 @@ export default function Search() {
           onChange={(e) => setUsername(e.target.value)}
           placeholder="Enter GitHub username"
           disabled={loading}
-          onKeyDown={(e) => e.key === 'Enter' && handleSubmit(e)}
         />
         <button type="submit" disabled={loading}>
           {loading ? 'Searching...' : 'Search'}
@@ -48,7 +47,11 @@ export default function Search() {
       </form>
 
       {loading && <p className="loading">Loading...</p>}
-      {error && <p className="error">{error}</p>}
+      
+      {/* Exact error message display */}
+      {error === "Looks like we can't find the user" && (
+        <p className="error">Looks like we can't find the user</p>
+      )}
 
       {userData && !error && (
         <div className="user-card">
@@ -56,25 +59,16 @@ export default function Search() {
             src={userData.avatar_url} 
             alt={userData.login} 
             width="100"
-            className="user-avatar"
           />
-          <div className="user-info">
-            <h2>{userData.name || userData.login}</h2>
-            {userData.bio && <p className="user-bio">{userData.bio}</p>}
-            <div className="user-stats">
-              <span>Followers: {userData.followers}</span>
-              <span>Following: {userData.following}</span>
-              <span>Repos: {userData.public_repos}</span>
-            </div>
-            <a 
-              href={userData.html_url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="profile-link"
-            >
-              View Profile on GitHub
-            </a>
-          </div>
+          <h2>{userData.name || userData.login}</h2>
+          <p>{userData.bio || 'No bio available'}</p>
+          <a 
+            href={userData.html_url} 
+            target="_blank" 
+            rel="noopener noreferrer"
+          >
+            View Profile
+          </a>
         </div>
       )}
     </div>

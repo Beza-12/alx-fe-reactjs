@@ -1,30 +1,35 @@
-import { useQuery } from 'react-query';
+// src/PostsComponent.jsx
+import { useQuery } from "react-query";
 
+// Function to fetch posts
 const fetchPosts = async () => {
-  const res = await fetch('https://jsonplaceholder.typicode.com/posts');
-  if (!res.ok) {
-    throw new Error('Network response was not ok');
+  const response = await fetch("https://jsonplaceholder.typicode.com/posts");
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
   }
-  return res.json();
+  return response.json();
 };
 
-const PostsComponent = () => {
-  const { data, status, refetch } = useQuery('posts', fetchPosts, {
-    staleTime: 5000,
-  });
+function PostsComponent() {
+  // useQuery hook
+  const { data, error, isLoading, isError, refetch, isFetching } = useQuery(
+    "posts",        // key for caching
+    fetchPosts,     // function to fetch
+    {
+      staleTime: 5000,   // 5 sec - data considered fresh
+      cacheTime: 10000,  // 10 sec - cache kept in memory
+    }
+  );
 
-  if (status === 'loading') {
-    return <div>Loading posts...</div>;
-  }
-
-  if (status === 'error') {
-    return <div>Error fetching data. Please try again.</div>;
-  }
+  if (isLoading) return <p>Loading posts...</p>;
+  if (isError) return <p style={{ color: "red" }}>Error: {error.message}</p>;
 
   return (
     <div>
-      <h2>Posts</h2>
-      <button onClick={() => refetch()}>Refetch Data</button>
+      <button onClick={() => refetch()} disabled={isFetching}>
+        {isFetching ? "Refreshing..." : "Refetch Posts"}
+      </button>
+
       <ul>
         {data.slice(0, 10).map((post) => (
           <li key={post.id}>
@@ -35,6 +40,6 @@ const PostsComponent = () => {
       </ul>
     </div>
   );
-};
+}
 
 export default PostsComponent;

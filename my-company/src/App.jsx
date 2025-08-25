@@ -1,82 +1,33 @@
-import { Link, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import Home from './Home';
+import About from './About';
+import Services from './Services';
+import Contact from './Contact';
+import './App.css';
 
-function Navbar() {
-  const location = useLocation();
-
+function App() {
   return (
-    <nav style={{
-      backgroundColor: '#2c3e50',
-      padding: '1rem 2rem',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-    }}>
-      <div style={{
+    <Router>
+      <div style={{ 
+        minHeight: '100vh',
         display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        maxWidth: '1200px',
-        margin: '0 auto'
+        flexDirection: 'column'
       }}>
-        <Link to="/" style={{
-          color: 'white',
-          textDecoration: 'none',
-          fontSize: '1.5rem',
-          fontWeight: 'bold'
-        }}>
-          Company Name
-        </Link>
-        
-        <div style={{
-          display: 'flex',
-          gap: '2rem'
-        }}>
-          <Link 
-            to="/" 
-            style={{ 
-              color: location.pathname === '/' ? '#3498db' : 'white',
-              textDecoration: 'none',
-              fontWeight: location.pathname === '/' ? 'bold' : 'normal',
-              transition: 'color 0.3s ease'
-            }}
-          >
-            Home
-          </Link>
-          <Link 
-            to="/about" 
-            style={{ 
-              color: location.pathname === '/about' ? '#3498db' : 'white',
-              textDecoration: 'none',
-              fontWeight: location.pathname === '/about' ? 'bold' : 'normal',
-              transition: 'color 0.3s ease'
-            }}
-          >
-            About
-          </Link>
-          <Link 
-            to="/services" 
-            style={{ 
-              color: location.pathname === '/services' ? '#3498db' : 'white',
-              textDecoration: 'none',
-              fontWeight: location.pathname === '/services' ? 'bold' : 'normal',
-              transition: 'color 0.3s ease'
-            }}
-          >
-            Services
-          </Link>
-          <Link 
-            to="/contact" 
-            style={{ 
-              color: location.pathname === '/contact' ? '#3498db' : 'white',
-              textDecoration: 'none',
-              fontWeight: location.pathname === '/contact' ? 'bold' : 'normal',
-              transition: 'color 0.3s ease'
-            }}
-          >
-            Contact
-          </Link>
-        </div>
+        <Navbar />
+        <main style={{ flex: '1' }}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/contact" element={<Contact />} />
+          </Routes>
+        </main>
+        <Footer />
       </div>
-    </nav>
+    </Router>
   );
 }
 
-export default Navbar;
+export default App;

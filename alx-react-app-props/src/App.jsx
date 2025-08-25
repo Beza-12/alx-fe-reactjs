@@ -10,7 +10,7 @@ import Footer from './Footer';
 import WelcomeMessage from './components/WelcomeMessage.jsx';
 import UserProfile from './components/UserProfile';
 import ProfilePage from './ProfilePage';
-
+import UserContext from './UserContext'; 
 // Context
 import UserContext from './UserContext';
 

@@ -3,26 +3,23 @@ import React from 'react';
 const UserProfile = (props) => {
   return (
     <div style={{ 
-      border: '2px solid #e0e0e0', 
-      padding: '20px', 
-      margin: '15px',
-      borderRadius: '8px',
-      backgroundColor: '#f9f9f9',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+      border: '1px solid gray', 
+      padding: '10px', 
+      margin: '10px',
+      borderRadius: '5px',
+      backgroundColor: '#f8f9fa'
     }}>
       <h2 style={{ 
-        color: '#2c3e50', 
-        fontSize: '1.8rem',
-        marginBottom: '15px',
-        borderBottom: '2px solid #3498db',
-        paddingBottom: '5px'
+        color: 'blue', 
+        fontSize: '1.5rem',
+        marginBottom: '10px'
       }}>
         {props.name}
       </h2>
       <p style={{ 
-        fontSize: '1.1rem',
-        margin: '8px 0',
-        color: '#34495e'
+        fontSize: '1rem',
+        margin: '5px 0',
+        color: '#333'
       }}>
         Age: <span style={{ 
           fontWeight: 'bold', 
@@ -32,10 +29,10 @@ const UserProfile = (props) => {
         </span>
       </p>
       <p style={{ 
-        fontSize: '1.1rem',
-        margin: '8px 0',
-        color: '#2c3e50',
-        lineHeight: '1.5'
+        fontSize: '1rem',
+        margin: '5px 0',
+        color: '#555',
+        lineHeight: '1.4'
       }}>
         Bio: {props.bio}
       </p>

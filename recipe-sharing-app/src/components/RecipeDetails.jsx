@@ -9,6 +9,8 @@ const RecipeDetails = () => {
   const recipe = useRecipeStore(state =>
     state.recipes.find(recipe => recipe.id === recipeId)
   );
+  const isFavorite = useRecipeStore(state => state.isFavorite(recipeId));
+  const toggleFavorite = useRecipeStore(state => state.toggleFavorite);
 
   if (!recipe) {
     return (
@@ -32,9 +34,30 @@ const RecipeDetails = () => {
         padding: '25px',
         borderRadius: '10px',
         backgroundColor: '#f9f9f9',
-        marginBottom: '20px'
+        marginBottom: '20px',
+        position: 'relative'
       }}>
-        <h1 style={{ color: '#2c3e50', marginBottom: '15px' }}>{recipe.title}</h1>
+        <button
+          onClick={() => toggleFavorite(recipe.id)}
+          style={{
+            position: 'absolute',
+            top: '20px',
+            right: '20px',
+            fontSize: '2rem',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: isFavorite ? '#d32f2f' : '#ccc',
+            transition: 'color 0.3s ease'
+          }}
+          title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+        >
+          {isFavorite ? '❤️' : '🤍'}
+        </button>
+
+        <h1 style={{ color: '#2c3e50', marginBottom: '15px', paddingRight: '60px' }}>
+          {recipe.title}
+        </h1>
         <p style={{ 
           fontSize: '1.1rem', 
           lineHeight: '1.6', 
@@ -44,7 +67,7 @@ const RecipeDetails = () => {
           {recipe.description}
         </p>
         
-        <div style={{ display: 'flex', gap: '15px' }}>
+        <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
           <EditRecipeForm recipe={recipe} />
           <DeleteRecipeButton recipeId={recipe.id} />
         </div>

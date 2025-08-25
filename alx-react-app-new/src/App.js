@@ -4,7 +4,7 @@ import UserProfile from './components/UserProfile';
 import MainContent from './components/MainContent';
 import Footer from './components/Footer';
 import './App.css';
-
+import Counter from './components/Counter';  
 function App() {
   return (
     <div className="App" style={{ 
@@ -27,6 +27,7 @@ function App() {
       />
       
       <MainContent />
+      <Counter />
       <Footer />
     </div>
   );

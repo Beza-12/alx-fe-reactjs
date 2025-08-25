@@ -1,35 +1,30 @@
 import React from 'react';
-import Header from './components/Header';
-import UserProfile from './components/UserProfile';
-import MainContent from './components/MainContent';
-import Footer from './components/Footer';
-import './App.css';
 
-function App() {
+const MainContent = () => {
   return (
-    <div className="App" style={{ 
-      minHeight: '100vh',
+    <main style={{ 
+      backgroundColor: '#f0f8ff',
       padding: '20px',
-      backgroundColor: '#f8f9fa'
+      margin: '15px',
+      borderRadius: '8px',
+      border: '1px solid #ddd'
     }}>
-      <Header />
-      
-      <UserProfile 
-        name="John Doe" 
-        age={28} 
-        bio="Travel enthusiast and photography lover. Exploring the world one city at a time."
-      />
-      
-      <UserProfile 
-        name="Jane Smith" 
-        age={32} 
-        bio="Food blogger and cultural explorer. Documenting culinary adventures across continents."
-      />
-      
-      <MainContent />
-      <Footer />
-    </div>
+      <h2 style={{ 
+        color: '#2c3e50',
+        textAlign: 'center',
+        marginBottom: '15px'
+      }}>
+        My Travel Experiences
+      </h2>
+      <p style={{ 
+        fontSize: '1.1rem',
+        lineHeight: '1.6',
+        color: '#34495e'
+      }}>
+        I love to visit New York, Paris, and Tokyo. Each city offers unique experiences and cultural insights that make traveling so rewarding.
+      </p>
+    </main>
   );
-}
+};
 
-export default App;
+export default MainContent;

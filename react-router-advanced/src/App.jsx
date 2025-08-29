@@ -30,10 +30,10 @@ function App() {
             <Route index element={<p>Select a tab above to see details or settings.</p>} />
             <Route path="details" element={<ProfileDetails />} />
             <Route path="settings" element={<ProfileSettings />} />
-            <Route path="/posts/:id" element={<BlogPost />} />
+            <Route path="/blog/:id" element={<BlogPost />} />
 
           </Route>
-          <Route path="/posts/:id" element={<BlogPost />} />
+          <Route path="/blog/:id" element={<BlogPost />} />
         </Routes>
       </div>
     </Router>
@@ -64,7 +64,7 @@ function App() {
             <Route path="/posts/:id" element={<BlogPost />} />
 
           </Route>
-          <Route path="/posts/:id" element={<BlogPost />} />
+          <Route path="/blog/:id" element={<BlogPost />} />
         </Routes>
       </div>
     </Router>
